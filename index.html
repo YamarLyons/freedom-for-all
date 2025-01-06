@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freedom4All</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="app.js" defer></script>
+    <link rel="icon" href="img/favicon.ico">
+</head>
+<body>
+  
+    <header>
+        <div class="headerImg"><img src="img/header.png" alt="FREEDOMHEADER"></div>
+
+    <div class="searchBar">
+        <input 
+            type="text" 
+             id="search-bar" 
+             placeholder="Search for articles..." 
+             oninput="fetchArticles()">
+    </div>
+    </header>
+    <main>
+        <div class="heroPic">
+            <img src="img/logo.png" alt="FREEDOM4ALL">  
+        </div>
+        <section class="voicesHeader">
+            <h2>VOICES OF THE WEEK</h2>
+        </section>
+        <div class="videoWrapper">
+            <div class="mainVideo">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/NRvAY2eWTEs?si=FPItf1TlV6oFwdj2" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+             </div>
+             <div class="secondVideo">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/0y0QwgADApY?si=d5TK2hlL5gQ3n6IK" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+             </div>
+             <div class="thirdVid">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/xglaXVtQcis?si=BHrmfxE7pK59ELhQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+             </div>
+        </div>
+    <div class="twitter-wrapper">
+        <div class="trump-feed-container">
+            <a class="twitter-timeline" data-width="500" data-height="500"data-theme="dark" href="https://twitter.com/realDonaldTrump?ref_src=twsrc%5Etfw">Tweets by realDonaldTrump</a> 
+            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        </div>
+        <div class="news-feed-container">
+            <a class="twitter-timeline" data-width="500" data-height="500" data-theme="dark" href="https://twitter.com/AJENews?ref_src=twsrc%5Etfw">Tweets by AJENews</a> 
+            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+         </div>
+    </div>
+         <div class="chart-container">
+            <div class="politicalChart">
+                <img src="img/Political Leanings of News Networks.png" alt="Leanings of News Networks">
+             </div> 
+         </div>
+
+       
+                 
+        <section class="info-box">
+            <h2>NO FAKE NEWS. NO LIES. JUST THE FACTS!</h2>
+            <p><strong>For the True Patriots:</strong> Freedom For All is a platform dedicated to those who cherish the principles of free speech and the pursuit of truth.
+                Here, you can explore news from a wide range of sources, curated in one convenient location. We believe that understanding multiple perspectives
+                is essential to forming a well-rounded view of current events. Our mission is to empower individuals by providing a space where every voice matters 
+                and open dialogue thrives. Freedom For All is not just a website; it is a community committed to exploring the unknown and fostering understanding.
+                Whether it’s the latest developments in UAP phenomena, cutting-edge drone technology, or meaningful discussions about societal issues, we bring 
+                together diverse sources to help you stay informed and engaged. Join us in building a forum where patriots unite to exchange ideas, share discoveries, 
+                and uphold the values of transparency and freedom.</p>
+                      
+    </section>
+  
+    <section class="news-Top-Header">
+        <div class="newsweek-Header">WORLD NEWS:</div>
+    </section>
+
+
+    <div id="article-list"></div>
+    <h2 class="sources-header">Sources</h2>
+    <ul class="sources-list">
+       <li><a href="https://www.wsj.com" target="_blank" rel="noopener">The Wall Street Journal (WSJ)</a></li>
+       <li><a href="https://www.csmonitor.com" target="_blank" rel="noopener">Christian Science Monitor (CSM)</a></li>
+       <li><a href="https://thehill.com" target="_blank" rel="noopener">The Hill</a></li>
+       <li><a href="https://san.com" target="_blank" rel="noopener">San News (SAN)</a></li>
+       <li><a href="https://www.nytimes.com" target="_blank" rel="noopener">The New York Times (NYT)</a></li>
+         <li><a href="https://www.politico.com" target="_blank" rel="noopener">Politico (POL)</a></li>
+         <li><a href="https://www.cbsnews.com" target="_blank" rel="noopener">CBS News</a></li>
+         <li><a href="https://www.foxnews.com" target="_blank" rel="noopener">Fox News</a></li>
+         <li><a href="https://www.breitbart.com" target="_blank" rel="noopener">Breitbart News</a></li>
+         <li><a href="https://www.dailywire.com" target="_blank" rel="noopener">The Daily Wire</a></li>
+         <li><a href="https://www.npr.org" target="_blank" rel="noopener">NPR</a></li>
+         <li><a href="https://www.newsweek.com" target="_blank" rel="noopener">Newsweek</a></li>
+         <li><a href="https://www.bbc.com" target="_blank" rel="noopener">BBC News</a></li>
+         <li><a href="https://www.washingtonpost.com" target="_blank" rel="noopener">The Washington Post (WP)</a></li>
+        
+    </ul>
+    
+    <script>
+      async function fetchArticles() {
+    const searchQuery = document.getElementById("search-bar").value;
+    try {
+        const response = await fetch(`http://127.0.0.1:5000/fetch-articles?search=${searchQuery}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const articles = await response.json();
+        displayArticles(articles);
+    } catch (error) {
+        console.error("Error fetching articles:", error);
+    }
+}
+
+function displayArticles(articles) {
+    const articleList = document.getElementById("article-list");
+    articleList.innerHTML = ''; // Clear previous articles
+
+    articles.forEach(article => {
+        const listItem = document.createElement("li");
+        listItem.classList.add(article.source);
+
+        // Create a clickable article link
+        const title = document.createElement("h2");
+        const link = document.createElement("a");
+        link.href = article.link;
+        link.textContent = article.title;
+        title.appendChild(link);
+
+        listItem.appendChild(title);
+        articleList.appendChild(listItem);
+    });
+}
+
+// Fetch all articles when the page loads
+fetchArticles();
+    </script>
+    </main>
+    <footer>
+        <div class="footer-container">
+            <p>&copy; 2025 Freedom For All. All Rights Reserved.</p>
+
+            <p>Freedom For All is committed to truth, transparency, and the principles of free speech.</p>
+            
+            <p><strong>Disclaimer:</strong> Freedom For All is a non-profit platform dedicated to promoting free speech and access to truthful information. All content displayed, including articles and media, is sourced from third-party publications for educational and informational purposes only. We do not claim ownership of external content and strive to respect all copyright laws. If you believe any content infringes on copyright, please contact us for prompt removal or correction.</p>
+        </div>
+    </footer>   
+</body>
+</html>
