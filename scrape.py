@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file
 from flask_cors import CORS
 import logging
 import feedparser
@@ -38,6 +38,14 @@ def get_articles(rss_feeds):
                 articles.append({"title": title, "link": link, "source": source})
     return articles
 
+@app.route("/")
+def serve_index():
+    return send_file('index.html')
+
+@app.route("/style.css")
+def serve_style():
+    return send_file('style.css', mimetype='text/css')
+
 @app.route("/fetch-articles")
 def fetch_articles():
     search_query = request.args.get('search', '').lower()
@@ -55,4 +63,4 @@ def fetch_articles():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     init_db()
-    app.run()
+    app.run(host='0.0.0.0', port=10000)
