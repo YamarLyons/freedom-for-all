@@ -13,9 +13,16 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # Use PostgreSQL with SQLAlchemy
-DATABASE_URL = os.getenv('DATABASE_URL')
-engine = create_engine(DATABASE_URL, echo=True)  # echo=True will log SQL statements for debugging
-metadata = MetaData()  # Remove 'bind' from here
+DB_HOST = os.getenv('DB_HOST')
+DB_PORT = os.getenv('DB_PORT')
+DB_USER = os.getenv('DB_USER')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_NAME = os.getenv('DB_NAME')
+
+# Create engine using individual components
+DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+engine = create_engine(DATABASE_URL, echo=True)
+metadata = MetaData()
 
 # Define the articles table schema for PostgreSQL
 articles = Table(
@@ -32,14 +39,12 @@ CACHE_DURATION = 40 * 60 * 60  # 2 days in seconds
 def init_db():
     """Initialize the PostgreSQL database with the correct schema."""
     logger.info("Starting database initialization")
-    with engine.begin() as connection:  # Use 'begin' for automatic commit/rollback
-        # Using `text()` for executing raw SQL queries correctly
+    with engine.begin() as connection:
         result = connection.execute(text("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name='articles');"))
         table_exists = result.scalar()
 
         logger.info(f"Table 'articles' exists: {table_exists}")
 
-        # If the table exists, back up the data and recreate the schema
         if table_exists:
             existing_data = connection.execute(articles.select()).fetchall()
             logger.info("Renaming existing articles table to articles_old")
@@ -48,9 +53,8 @@ def init_db():
             existing_data = []
 
         logger.info("Creating the 'articles' table")
-        metadata.create_all(connection)  # The connection here provides the bind
+        metadata.create_all(connection)
 
-        # Restore existing data if available
         if existing_data:
             logger.info("Restoring existing data to new articles table")
             for row in existing_data:
@@ -62,7 +66,6 @@ def init_db():
                     timestamp=row.timestamp
                 ))
 
-        # Drop the old table if it existed
         logger.info("Dropping old table if it exists")
         connection.execute(text("DROP TABLE IF EXISTS articles_old"))
     logger.info("Database initialization completed")
@@ -91,29 +94,18 @@ def save_articles_to_db(articles_list):
 def direct_db_test():
     """Function to test direct connection to the database using psycopg2."""
     try:
-        # Parse the DATABASE_URL to get connection parameters
-        connection_params = {
-            'dbname': DATABASE_URL.split('//')[1].split(':')[0],
-            'user': DATABASE_URL.split('//')[1].split(':')[1].split('@')[0],
-            'password': DATABASE_URL.split('//')[1].split(':')[2].split('@')[0],
-            'host': DATABASE_URL.split('@')[1].split(':')[0],
-            'port': DATABASE_URL.split(':')[-1].split('/')[0]
-        }
-        
-        conn = psycopg2.connect(**connection_params)
+        conn = psycopg2.connect(
+            dbname=DB_NAME,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            host=DB_HOST,
+            port=DB_PORT
+        )
         cur = conn.cursor()
-        
-        # Example query to test if connection works
         cur.execute("SELECT version();")
         db_version = cur.fetchone()
         logger.info(f"Connected to PostgreSQL version: {db_version[0]}")
-        
         cur.close()
         conn.close()
     except psycopg2.Error as e:
         logger.error(f"An error occurred: {e}")
-
-# Example usage (commented out to not run by default)
-# init_db()
-# print(fetch_cached_articles())
-# direct_db_test()
