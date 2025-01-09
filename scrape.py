@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, send_file
+from flask import Flask, jsonify, request, send_file, send_from_directory
 from flask_cors import CORS
 import logging
 import feedparser
@@ -45,6 +45,10 @@ def serve_index():
 @app.route("/style.css")
 def serve_style():
     return send_file('style.css', mimetype='text/css')
+
+@app.route('/img/<path:filename>')
+def serve_image(filename):
+    return send_from_directory('img', filename)
 
 @app.route("/fetch-articles")
 def fetch_articles():
