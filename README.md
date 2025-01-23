@@ -105,6 +105,4 @@ The site is hosted on **Render** and can be accessed live at:
 
 ---
 
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
