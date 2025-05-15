@@ -109,3 +109,5 @@ def direct_db_test():
         conn.close()
     except psycopg2.Error as e:
         logger.error(f"An error occurred: {e}")
+
+        
