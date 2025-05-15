@@ -3,7 +3,7 @@ from flask_cors import CORS
 import logging
 import feedparser
 from db_manager import init_db, fetch_cached_articles, save_articles_to_db
-
+                                                                              
 app = Flask(__name__)
 CORS(app)
 
@@ -67,4 +67,4 @@ def fetch_articles():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     init_db()
-    app.run(host='0.0.0.0', port=10000)
+    app.run(debug=True)

@@ -61,7 +61,7 @@ def init_db():
                 connection.execute(articles.insert().values(
                     id=row.id,
                     title=row.title,
-                    link=row.link,
+                    link=row.link,                                  
                     source=row.source,
                     timestamp=row.timestamp
                 ))
