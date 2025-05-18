@@ -95,60 +95,59 @@
     
 <script>
   let debounceTimer;
+  let allArticles = [];
 
-  async function fetchArticles(searchQuery = "") {
-      try {
-          const response = await fetch(`https://freedomforall.onrender.com/fetch-articles?search=${encodeURIComponent(searchQuery)}`);
-          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-          const articles = await response.json();
-          displayArticles(articles);
-      } catch (error) {
-          console.error("Error fetching articles:", error);
-      }
+  async function fetchAllArticlesOnce() {
+    try {
+      const response = await fetch("https://freedomforall.onrender.com/fetch-articles");
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      allArticles = await response.json();
+      displayArticles(allArticles);
+    } catch (error) {
+      console.error("Error fetching articles:", error);
+    }
   }
 
   function displayArticles(articles) {
-      const articleList = document.getElementById("article-list");
-      articleList.innerHTML = ''; // Clear previous articles
+    const articleList = document.getElementById("article-list");
+    articleList.innerHTML = ''; // Clear previous articles
 
-      articles.forEach(article => {
-          const listItem = document.createElement("li");
-          listItem.classList.add(article.source);
+    articles.forEach(article => {
+      const listItem = document.createElement("li");
+      listItem.classList.add(article.source);
 
-          const title = document.createElement("h2");
-          const link = document.createElement("a");
-          link.href = article.link;
-          link.textContent = article.title;
+      const title = document.createElement("h2");
+      const link = document.createElement("a");
+      link.href = article.link;
+      link.textContent = article.title;
+      title.appendChild(link);
 
-          // Add Twitter embed class if it's a Twitter link
-          if (link.href.includes("twitter.com")) {
-              link.classList.add("twitter-tweet");
-          }
-
-          title.appendChild(link);
-          listItem.appendChild(title);
-          articleList.appendChild(listItem);
-      });
-
-      // Re-render Twitter widgets for dynamically inserted links
-      if (window.twttr && window.twttr.widgets) {
-          window.twttr.widgets.load();
-      }
+      listItem.appendChild(title);
+      articleList.appendChild(listItem);
+    });
   }
 
-  // Debounce input
+  // Debounced search input
   document.getElementById("search-bar").addEventListener("input", function () {
-      const query = this.value;
+    const searchQuery = this.value.toLowerCase();
 
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-          fetchArticles(query);
-      }, 500); // 500ms delay
+    clearTimeout(debounceTimer);
+
+    debounceTimer = setTimeout(() => {
+      const filtered = allArticles
+        .filter(article =>
+          article.title.toLowerCase().includes(searchQuery)
+        )
+        .sort((a, b) => b.timestamp - a.timestamp); // Newest first
+
+      displayArticles(filtered);
+    }, 500); // Delay in ms
   });
 
-  // Fetch on load
-  fetchArticles();
+  // Initial fetch when page loads
+  fetchAllArticlesOnce();
 </script>
+
 
 
     </main>
