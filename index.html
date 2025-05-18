@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="app.js" defer></script>
     <link rel="icon" href="img/favicon.ico">
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </head>
 <body>
   
@@ -94,42 +95,64 @@
         
     </ul>
     
-    <script>
-      async function fetchArticles() {
-    const searchQuery = document.getElementById("search-bar").value;
-    try {
-        const response = await fetch(`https://freedomforall.onrender.com/fetch-articles?search=${searchQuery}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const articles = await response.json();
-        displayArticles(articles);
-    } catch (error) {
-        console.error("Error fetching articles:", error);
-    }
-}
+<script>
+  let debounceTimer;
 
-function displayArticles(articles) {
-    const articleList = document.getElementById("article-list");
-    articleList.innerHTML = ''; // Clear previous articles
+  async function fetchArticles(searchQuery = "") {
+      try {
+          const response = await fetch(`https://freedomforall.onrender.com/fetch-articles?search=${encodeURIComponent(searchQuery)}`);
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const articles = await response.json();
+          displayArticles(articles);
+      } catch (error) {
+          console.error("Error fetching articles:", error);
+      }
+  }
 
-    articles.forEach(article => {
-        const listItem = document.createElement("li");
-        listItem.classList.add(article.source);
+  function displayArticles(articles) {
+      const articleList = document.getElementById("article-list");
+      articleList.innerHTML = ''; // Clear previous articles
 
-        // Create a clickable article link
-        const title = document.createElement("h2");
-        const link = document.createElement("a");
-        link.href = article.link;
-        link.textContent = article.title;
-        title.appendChild(link);
+      articles.forEach(article => {
+          const listItem = document.createElement("li");
+          listItem.classList.add(article.source);
 
-        listItem.appendChild(title);
-        articleList.appendChild(listItem);
-    });
-}
+          const title = document.createElement("h2");
+          const link = document.createElement("a");
+          link.href = article.link;
+          link.textContent = article.title;
 
-// Fetch all articles when the page loads
-fetchArticles();
-    </script>
+          // Add Twitter embed class if it's a Twitter link
+          if (link.href.includes("twitter.com")) {
+              link.classList.add("twitter-tweet");
+          }
+
+          title.appendChild(link);
+          listItem.appendChild(title);
+          articleList.appendChild(listItem);
+      });
+
+      // Re-render Twitter widgets for dynamically inserted links
+      if (window.twttr && window.twttr.widgets) {
+          window.twttr.widgets.load();
+      }
+  }
+
+  // Debounce input
+  document.getElementById("search-bar").addEventListener("input", function () {
+      const query = this.value;
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+          fetchArticles(query);
+      }, 500); // 500ms delay
+  });
+
+  // Fetch on load
+  fetchArticles();
+</script>
+
+
     </main>
     <footer>
         <div class="footer-container">
