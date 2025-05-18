@@ -8,7 +8,7 @@ app = Flask(__name__)
 CORS(app)
 
 rss_feeds = {
-    "wsj": "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
+    ## "wsj": "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
     "csm": "https://rss.csmonitor.com/feeds/all",
     "hill": "https://thehill.com/feed/?feed=partnerfeed-news-feed&format=rss",
     "san": "https://san.com/feed/",

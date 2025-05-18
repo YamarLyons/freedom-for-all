@@ -95,16 +95,32 @@
     
 <script>
   let debounceTimer;
-  let allArticles = [];
 
-  async function fetchAllArticlesOnce() {
+  function showLoadingMessage(message) {
+    const articleList = document.getElementById("article-list");
+    articleList.innerHTML = `
+      <li>
+        <div class="dots-loader">
+          <span></span><span></span><span></span>
+        </div>
+        <div style="text-align:center;">${message}</div>
+      </li>
+    `;
+  }
+
+  async function fetchArticles(searchQuery = "") {
+    showLoadingMessage("Loading articles...");
     try {
-      const response = await fetch("https://freedomforall.onrender.com/fetch-articles");
+      const response = await fetch(`https://freedomforall.onrender.com/fetch-articles?search=${encodeURIComponent(searchQuery)}`);
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      allArticles = await response.json();
-      displayArticles(allArticles);
+      const articles = await response.json();
+
+      // Sort by newest first (assuming newest = latest timestamp)
+      const sortedArticles = articles.reverse();
+      displayArticles(sortedArticles);
     } catch (error) {
       console.error("Error fetching articles:", error);
+      showLoadingMessage("Failed to load articles.");
     }
   }
 
@@ -127,28 +143,17 @@
     });
   }
 
-  // Debounced search input
   document.getElementById("search-bar").addEventListener("input", function () {
-    const searchQuery = this.value.toLowerCase();
-
+    const query = this.value;
     clearTimeout(debounceTimer);
-
     debounceTimer = setTimeout(() => {
-      const filtered = allArticles
-        .filter(article =>
-          article.title.toLowerCase().includes(searchQuery)
-        )
-        .sort((a, b) => b.timestamp - a.timestamp); // Newest first
-
-      displayArticles(filtered);
-    }, 500); // Delay in ms
+      fetchArticles(query);
+    }, 500);
   });
 
-  // Initial fetch when page loads
-  fetchAllArticlesOnce();
+  // Initial fetch on load
+  fetchArticles();
 </script>
-
-
 
     </main>
     <footer>
